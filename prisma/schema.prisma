@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./users.db"
+}
+
+model bookings {
+  id               Int      @id @default(autoincrement())
+  user_id          Int
+  seats_booked     Int
+  show_id          Int
+  theatre_id       Int
+  booking_datetime DateTime
+  users            users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  shows            shows    @relation(fields: [show_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  theatres         theatres @relation(fields: [theatre_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model show_tickets {
+  id                Int   @id @default(autoincrement())
+  show_id           Int
+  tickets_available Int
+  shows             shows @relation(fields: [show_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model shows {
+  id           Int            @id @default(autoincrement())
+  theatre_id   Int
+  title        String
+  description  String
+  date_time    String
+  price        Float
+  user_id      Int?
+  bookings     bookings[]
+  show_tickets show_tickets[]
+  users        users?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  theatres     theatres       @relation(fields: [theatre_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model theatres {
+  id        Int        @id @default(autoincrement())
+  title     String
+  caption   String
+  image_url String
+  user_id   Int?
+  city      String?
+  bookings  bookings[]
+  shows     shows[]
+  users     users?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id       Int        @id @default(autoincrement())
+  username String
+  email    String
+  password String
+  is_admin Int?       @default(0)
+  bookings bookings[]
+  shows    shows[]
+  theatres theatres[]
+}
